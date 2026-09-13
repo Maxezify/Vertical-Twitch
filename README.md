@@ -4,6 +4,8 @@ Un userscript pour **Violentmonkey** qui place **le chat en haut et le lecteur e
 
 **[Installer le userscript](https://raw.githubusercontent.com/Maxezify/Vertical-Twitch/main/vertical-twitch.user.js)**
 
+**Version 1.0.1 :** correction de disparitions lors de modifications tardives des conteneurs ou de la visibilité du lecteur ; confinement du chat et prise en charge explicite du défilement 7TV. Pour mettre à jour la 1.0.0, ouvrir le lien ci-dessus, confirmer **Mettre à jour** dans Violentmonkey, puis recharger complètement la page Twitch. La version et le nom du script se vérifient dans le tableau de bord Violentmonkey.
+
 ## Installation
 
 1. Installer [Violentmonkey](https://violentmonkey.github.io/get-it/) dans le navigateur.
@@ -39,7 +41,7 @@ Le critère portrait porte sur **la fenêtre du navigateur**, pas sur l'orientat
 
 ## Fonctionnement et confidentialité
 
-Le script ajoute une feuille de style et marque les conteneurs existants. Il **ne déplace ni ne recrée** le lecteur, la vidéo ou le chat. Les gestionnaires d'événements, la connexion au chat et le brouillon restent attachés aux mêmes éléments. La désactivation retire les attributs et variables du script, sans restaurer d'anciens styles par-dessus des mises à jour de Twitch.
+Le script ajoute une feuille de style et marque les conteneurs existants. Il **ne déplace ni ne recrée** le lecteur, la vidéo ou le chat. Si Twitch ou une extension ajoute un ancêtre tout en conservant les mêmes éléments, les contraintes sont réappliquées sur le nouveau chemin. Les gestionnaires d'événements, la connexion au chat et le brouillon restent attachés aux mêmes éléments. La désactivation retire les attributs et variables du script, sans restaurer d'anciens styles par-dessus des mises à jour de Twitch.
 
 Il suit les changements de taille et de structure avec `ResizeObserver` et `MutationObserver`. Les mutations à l'intérieur des messages et des commandes vidéo sont filtrées ; les recalculs sont regroupés. Une vérification du chemin de l'URL chaque seconde couvre aussi la navigation interne sans mutation de page, sans intercepter les fonctions de Twitch.
 
@@ -49,7 +51,7 @@ Aucune dépendance externe, aucun appel réseau émis par le script, aucune lect
 
 Les conteneurs et états de Twitch ont été inspectés sur une chaîne en direct le **13 septembre 2026**, en affichage normal et Studio, avec chat ouvert et masqué. Le dépôt contient un banc de tests local reproduisant cette structure et ses contraintes CSS, sans charger de messages, médias ou code de Twitch.
 
-Le détail des vérifications et leurs limites est dans [TESTING.md](TESTING.md). Ces tests utilisent des substituts des API GM : ils ne remplacent pas une validation de l'extension installée sur le compte de l'utilisateur. Les variantes de Twitch et les extensions qui modifient aussi la disposition, notamment 7TV, BTTV et FrankerFaceZ, peuvent nécessiter des ajustements. Aucun problème de coexistence n'est présumé, mais cette combinaison n'a pas été testée.
+Le détail des vérifications et leurs limites est dans [TESTING.md](TESTING.md). Ces tests utilisent des substituts des API GM : ils ne remplacent pas une validation de l'extension installée sur le compte de l'utilisateur. Le montage et le défilement du chat 7TV sont désormais simulés d'après son code public. L'exécution de l'extension complète dans Helium n'a pas été testée directement. Les variantes de Twitch, BTTV et FrankerFaceZ peuvent également nécessiter des ajustements.
 
 Twitch peut modifier ses sélecteurs. Si les conteneurs nécessaires ne sont plus reconnus, le script laisse la disposition native. Pour signaler un problème, indiquer le navigateur, les extensions de disposition actives, les dimensions de la fenêtre et joindre une capture dans les [issues](https://github.com/Maxezify/Vertical-Twitch/issues).
 

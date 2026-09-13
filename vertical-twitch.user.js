@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Vertical Twitch — Chat en haut
 // @namespace    https://github.com/Maxezify/Vertical-Twitch
-// @version      1.0.0
+// @version      1.0.1
 // @description  En portrait, affiche le chat en haut et le lecteur en bas, sans interrompre le stream.
 // @match        https://www.twitch.tv/*
 // @run-at       document-idle
@@ -43,6 +43,7 @@
   let timer = 0;
   let current = null;
   let marked = [];
+  let parents = [];
   let lastPath = location.pathname;
 
   GM_addStyle(`
@@ -59,9 +60,11 @@
       isolation: auto !important;
       z-index: 2 !important;
     }
-    html.${ACTIVE}:not(:has(:fullscreen)) [${PREFIX}main] .channel-root {
+    /* Leave Twitch's player placeholder visible to its layout/visibility logic.
+       The two opaque panels cover the channel information underneath. */
+    html.${ACTIVE}:not(:has(:fullscreen)) [${PREFIX}main] #live-channel-stream-information,
+    html.${ACTIVE}:not(:has(:fullscreen)) [${PREFIX}main] #live-channel-about-panel {
       visibility: hidden !important;
-      pointer-events: none !important;
     }
     html.${ACTIVE}:not(:has(:fullscreen)) [${PREFIX}main] [data-a-target="root-scroller"] {
       overflow: hidden !important;
@@ -83,6 +86,8 @@
       box-sizing: border-box !important;
     }
     html.${ACTIVE}:not(:has(:fullscreen)) [${PREFIX}player] {
+      display: block !important;
+      opacity: 1 !important;
       top: var(--vt-player-top) !important;
       height: var(--vt-player-height) !important;
       overflow: hidden !important;
@@ -107,6 +112,8 @@
       height: var(--vt-chat-height) !important;
       z-index: 3 !important;
       border: 0 !important;
+      /* Replacement chat renderers must never paint over the player. */
+      overflow: clip !important;
     }
     html.${ACTIVE}:not(:has(:fullscreen)) [${PREFIX}fill] {
       width: 100% !important;
@@ -114,7 +121,8 @@
       max-width: none !important;
       height: 100% !important;
       min-height: 0 !important;
-      max-height: none !important;
+      max-height: 100% !important;
+      flex-shrink: 1 !important;
       margin: 0 !important;
       box-sizing: border-box !important;
       transform: none !important;
@@ -124,6 +132,13 @@
       position: relative !important;
       inset: auto !important;
       opacity: 1 !important;
+    }
+    html.${ACTIVE}:not(:has(:fullscreen)) [${PREFIX}chat] .right-column__toggle-visibility {
+      position: absolute !important;
+      inset: auto !important;
+      top: 4px !important;
+      left: 5px !important;
+      z-index: 4 !important;
     }
     html.${ACTIVE}:not(:has(:fullscreen)) [${PREFIX}chat] .stream-chat {
       display: flex !important;
@@ -136,8 +151,30 @@
       width: 100% !important;
     }
     html.${ACTIVE}:not(:has(:fullscreen)) [${PREFIX}chat] .chat-room__content {
+      display: flex !important;
+      flex-direction: column !important;
+      flex: 1 1 0 !important;
+      height: 0 !important;
       min-height: 0 !important;
       width: 100% !important;
+    }
+    html.${ACTIVE}:not(:has(:fullscreen)) [${PREFIX}chat] seventv-container.seventv-chat-list,
+    html.${ACTIVE}:not(:has(:fullscreen)) [${PREFIX}chat] #seventv-chat-controller {
+      flex: 1 1 0 !important;
+      height: 0 !important;
+      min-height: 0 !important;
+      min-width: 0 !important;
+      overflow: hidden !important;
+    }
+    html.${ACTIVE}:not(:has(:fullscreen)) [${PREFIX}chat] .chat-scrollable-area {
+      min-height: 0 !important;
+      max-height: 100% !important;
+      overflow-y: auto !important;
+    }
+    html.${ACTIVE}:not(:has(:fullscreen)) [${PREFIX}chat] .seventv-chat-scroller {
+      height: 100% !important;
+      max-height: 100% !important;
+      min-height: 0 !important;
     }
     html.${ACTIVE}:not(:has(:fullscreen)) [${PREFIX}chat] .chat-input {
       flex-shrink: 0 !important;
@@ -176,6 +213,7 @@
     root.classList.remove(ACTIVE);
     for (const [element, attr] of marked) element.removeAttribute(attr);
     marked = [];
+    parents = [];
     for (const name of ['left', 'width', 'top', 'chat-height', 'player-top', 'player-height']) {
       root.style.removeProperty('--vt-' + name);
     }
@@ -217,6 +255,7 @@
     // Twitch nests several 34rem-wide wrappers. Mark just the path to the chat,
     // never every descendant (emote menus, badges and message widths stay native).
     for (let node = streamChat; node && node !== chat; node = node.parentElement) mark(node, 'fill');
+    parents = marked.map(([node]) => [node, node.parentElement]);
     for (const node of new Set([main, shell])) resizeObserver.observe(node);
     for (const node of [main, chat, elements.channel, ...chat.querySelectorAll('.chat-shell, .channel-root__right-column')]) {
       layoutObserver.observe(node, { attributes: true, attributeFilter: ['class', 'style'] });
@@ -233,7 +272,8 @@
       if (current) deactivate();
       return;
     }
-    if (!current || Object.keys(elements).some(key => elements[key] !== current[key])) attach(elements);
+    if (!current || Object.keys(elements).some(key => elements[key] !== current[key])
+      || parents.some(([node, parent]) => node.parentElement !== parent)) attach(elements);
     const mainRect = elements.main.getBoundingClientRect();
     const shellRect = elements.shell.getBoundingClientRect();
     const left = Math.max(0, mainRect.left);

@@ -5,6 +5,7 @@ import {readFile} from 'node:fs/promises';
 const routes = new Map([
   ['/vertical-twitch.user.js', ['../vertical-twitch.user.js', 'text/javascript']],
   ['/harness.js', ['./harness.js', 'text/javascript']],
+  ['/regression.js', ['./regression.js', 'text/javascript']],
   ['/fixture.css', ['./fixture.css', 'text/css']],
 ]);
 const server = http.createServer(async (request, response) => {

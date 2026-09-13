@@ -1,6 +1,30 @@
-# Vérifications — version 1.0.0
+# Vérifications — versions 1.0.1 et 1.0.0
 
 Date : 13 septembre 2026.
+
+## Correctif 1.0.1 : disparition après chargement
+
+Signalement : le lecteur apparaît en bas au démarrage puis disparaît ; environnement indiqué par l'utilisateur : **Helium avec 7TV**.
+
+L'inspection du code de la 1.0.0 a montré trois lacunes vérifiables :
+
+- La comparaison des éléments ignorait leurs parents. Insérer une enveloppe en conservant le même lecteur/chat ne déclenchait donc pas le marquage du nouvel ancêtre. Une transformation sur celui-ci peut capturer et découper le lecteur en position fixe.
+- Les règles du lecteur ne protégeaient pas `display` et `opacity` contre une écriture tardive de styles.
+- Les tests vérifiaient des rectangles sans vérifier quel élément était réellement dessiné devant le lecteur.
+
+Le correctif suit aussi les relations parent/enfant, protège la visibilité du lecteur et borne le débordement du chat. La racine entière de la chaîne n'est plus rendue invisible ; seuls les blocs d'information identifiés sont masqués. Le bouton de masquage du chat reste dans la zone visible.
+
+`tests/regression.js` teste le montage après délai d'un chat avec la structure et les règles de défilement publiques de 7TV, puis les modifications tardives des enveloppes et styles. Les points de contrôle utilisent `document.elementFromPoint` pour vérifier que le lecteur est réellement exposé à plusieurs hauteurs.
+
+**Comparaison exécutée sur la même fixture :** la 1.0.0 échoue sur l'ajout d'une enveloppe du chat, l'ajout d'un ancêtre transformé du lecteur et l'écriture tardive de `display:none; opacity:0`. Ces trois cas passent avec la 1.0.1. Le montage simple du chat 7TV simulé passait déjà en 1.0.0 : ce test ne démontre donc pas à lui seul la cause exacte du signalement dans Helium.
+
+Sources inspectées, révision `9225dc089759510ae100496a7adeb6db92bf8117` : [ChatController.vue](https://github.com/SevenTV/Extension/blob/9225dc089759510ae100496a7adeb6db92bf8117/src/site/twitch.tv/modules/chat/ChatController.vue), [UiScrollable.vue](https://github.com/SevenTV/Extension/blob/9225dc089759510ae100496a7adeb6db92bf8117/src/ui/UiScrollable.vue). Le scénario ajoute seulement une structure de test minimale ; il ne charge pas l'extension complète.
+
+Pour reproduire : lancer le serveur, ouvrir la fixture en portrait et cliquer sur **Tester les chargements différés / 7TV**. La version 1.0.1 réussit les **11 assertions** de cette suite en 1080 × 1808, ainsi que les **24 assertions** de la suite portrait existante. L'entrée/sortie du plein écran est vérifiée séparément.
+
+**Limite :** le navigateur Helium de l'utilisateur n'est pas accessible par l'outil de navigation de cette session. La combinaison installée Helium + Violentmonkey + 7TV et le symptôme exact sur son compte restent à vérifier après mise à jour. Le correctif ne prétend pas qu'une causalité propre à 7TV a été confirmée.
+
+## Historique de validation 1.0.0
 
 ## Structure Twitch inspectée
 
