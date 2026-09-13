@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="fr">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vertical Twitch — banc de tests</title>
+<link rel="stylesheet" href="/fixture.css">
+<body>
+<!-- Structure représentative observée sur Twitch le 13 septembre 2026.
+     Aucun compte, message réel, média distant ou code de Twitch n'est chargé. -->
+<div id="root"><div class="app"><nav class="top-nav">Twitch · Navigation</nav>
+<div class="layout">
+  <div class="side-wrapper"><nav class="side-nav">Chaînes</nav></div>
+  <main class="twilight-main"><div class="root-scrollable" data-a-target="root-scroller"><div class="root-scrollable__wrapper">
+    <div class="channel-root channel-root--live"><div class="placeholder"></div><h1>Chaîne de test</h1><p>Informations de la chaîne</p></div>
+    <div class="persistent-player" style="top:0;left:0;position:absolute;width:690px;max-height:calc(100vh - 160px);height:auto;transform:scale(1);z-index:1">
+      <div class="tw-aspect"><div class="aspect-spacer"></div><div class="video-player" data-a-target="video-player">
+        <div class="video-player__container"><div class="video-ref"><video muted></video></div></div>
+        <div class="video-player__overlay"><span>LECTEUR · 16:9</span><div class="player-controls"><button id="play">Lecture / pause</button><button id="studio">Mode Studio</button><button id="fullscreen">Plein écran</button></div></div>
+      </div></div>
+    </div>
+  </div></div></main>
+  <div class="right-wrapper"><div class="right-column right-column--beside" data-a-target="right-column-chat-bar">
+    <div class="toggle-wrapper"><button id="collapse">Masquer / afficher le chat</button></div>
+    <div class="chat-outer"><aside id="live-page-chat" style="height:100%" aria-hidden="false"><div class="channel-root__right-column channel-root__right-column--expanded" style="transform:translateX(-340px);opacity:1">
+      <div class="chat-inner"><div class="chat-shell chat-shell__expanded"><div class="chat-stack"><div class="empty-banner"></div><div class="stream-chat">
+        <header class="stream-chat-header">Chat du stream</header>
+        <section class="chat-room"><div class="chat-room__content"><div class="pinned">Message épinglé · Test</div><div class="chat-scrollable-area"><div class="messages" role="log"></div></div>
+        <div class="chat-input"><textarea aria-label="Envoyer un message" placeholder="Envoyer un message"></textarea><button id="emotes">Émoticônes</button><div class="emote-menu" hidden>🙂 ♥ 🎮</div></div></div></section>
+      </div></div></div></div>
+    </div></aside></div>
+  </div></div>
+</div><footer class="signup" hidden>Bannière Twitch</footer></div></div>
+<aside id="test-panel"><strong>Banc de tests (simulation)</strong><button id="run">Lancer les tests portrait</button><button id="landscape">Vérifier le mode paysage</button><button id="check-fullscreen">Vérifier le plein écran</button><div id="gm-menu"></div><pre id="results">Prêt</pre></aside>
+<script src="/harness.js"></script>
+<script src="/vertical-twitch.user.js"></script>
+</body>
+</html>

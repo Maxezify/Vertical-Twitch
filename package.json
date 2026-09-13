@@ -1,0 +1,11 @@
+{
+  "name": "vertical-twitch",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Userscript Violentmonkey : chat Twitch en haut, lecteur en bas en portrait",
+  "scripts": {
+    "check": "node --check vertical-twitch.user.js && node --check tests/harness.js && node --check tests/server.mjs",
+    "test:browser": "node tests/server.mjs"
+  },
+  "engines": { "node": ">=20" }
+}
